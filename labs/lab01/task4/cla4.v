@@ -21,19 +21,20 @@
 // TODO -- Step 3: sum bits
 //   sum[i] = p[i] ^ c[i]     (c0 = cin)
 
-module cla4(
-  input  [3:0] a,
-  input  [3:0] b,
-  input        cin,
-  output [3:0] sum,
-  output       cout
+module cla4 (
+    input  [3:0] a,
+    input  [3:0] b,
+    input        cin,
+    output [3:0] sum,
+    output       cout
 );
+    wire [3:0] g = a & b;
+    wire [3:0] p = a ^ b;
 
-  wire p0, p1, p2, p3;
-  wire g0, g1, g2, g3;
-  wire c1, c2, c3;
-
-  // TODO: your gate-level P/G, carry, and sum logic goes here.
-  // (cout should be connected to c4.) Remember the delay on every gate.
-
+    wire c1 = g[0] | (p[0] & cin);
+    wire c2 = g[1] | (p[1] & g[0]) | (p[1] & p[0] & cin);
+    wire c3 = g[2] | (p[2] & g[1]) | (p[2] & p[1] & g[0]) | (p[2] & p[1] & p[0] & cin);
+    
+    assign cout = g[3] | (p[3] & g[2]) | (p[3] & p[2] & g[1]) | (p[3] & p[2] & p[1] & g[0]) | (p[3] & p[2] & p[1] & p[0] & cin);
+    assign sum  = p ^ {c3, c2, c1, cin};
 endmodule
