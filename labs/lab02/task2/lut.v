@@ -1,45 +1,27 @@
-// tb.v
-module tb;
+// lut.v
+// A small parameterized ROM (lookup table): DEPTH words, each WIDTH bits
+// wide. dout continuously reflects mem[sel].
 
-  reg t_i0;
-  reg t_i1;
-  reg t_s;
+module lut #(
+  parameter WIDTH = 8,
+  parameter DEPTH = 4
+) (
+  input      [$clog2(DEPTH)-1:0] sel,
+  output reg [WIDTH-1:0]         dout
+);
 
+  reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-  wire t_y;
+  integer i;
 
-
-  mux_df DUT (
-    .I0(t_i0),
-    .I1(t_i1),
-    .S(t_s),
-    .Y(t_y)
-  );
-
-
-  string vcd_file;
   initial begin
-    if ($value$plusargs("vcd=%s", vcd_file)) begin
-      $dumpfile(vcd_file);
-      $dumpvars(0, DUT);
+    for (i = 0; i < DEPTH; i = i + 1) begin
+      mem[i] = i * i;
     end
   end
- 
-  initial begin
-   
-    t_i0 = 0; t_i1 = 0; t_s = 0;
-    #5 t_i0 = 0; t_i1 = 0; t_s = 1;
-    #5 t_i0 = 0; t_i1 = 1; t_s = 0;
-    #5 t_i0 = 0; t_i1 = 1; t_s = 1;
-    #5 t_i0 = 1; t_i1 = 0; t_s = 0;
-    #5 t_i0 = 1; t_i1 = 0; t_s = 1;
-    #5 t_i0 = 1; t_i1 = 1; t_s = 0;
-    #5 t_i0 = 1; t_i1 = 1; t_s = 1;
 
-    #5 $finish;
+  always @(*) begin
+    dout = mem[sel];
   end
-
-  initial
-    $monitor($time, " I0=%b I1=%b S=%b | Y=%b", t_i0, t_i1, t_s, t_y);
 
 endmodule
