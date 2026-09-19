@@ -1,28 +1,45 @@
-// lut.v
-// A small parameterized ROM (lookup table): DEPTH words, each WIDTH bits
-// wide. dout continuously reflects mem[sel].
-//
-// YOU complete the two TODOs below. Everything else is given.
+// tb.v
+module tb;
 
-module lut #(
-  parameter WIDTH = 8,
-  parameter DEPTH = 4
-) (
-  input      [$clog2(DEPTH)-1:0] sel,
-  output reg [WIDTH-1:0]         dout
-);
+  reg t_i0;
+  reg t_i1;
+  reg t_s;
 
-  reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-  integer i;
+  wire t_y;
 
-  // TODO: initialize mem[i] = i*i for every i from 0 to DEPTH-1.
-  // Use an initial block with a for loop -- this is the only place a ROM's
-  // contents should be set up. (See the lab manual for why.)
-  
 
-  // TODO: make dout continuously reflect mem[sel]. This is a combinational
-  // read -- pick the right procedural block and sensitivity list.
+  mux_df DUT (
+    .I0(t_i0),
+    .I1(t_i1),
+    .S(t_s),
+    .Y(t_y)
+  );
 
+
+  string vcd_file;
+  initial begin
+    if ($value$plusargs("vcd=%s", vcd_file)) begin
+      $dumpfile(vcd_file);
+      $dumpvars(0, DUT);
+    end
+  end
+
+  initial begin
+   
+    t_i0 = 0; t_i1 = 0; t_s = 0;
+    #5 t_i0 = 0; t_i1 = 0; t_s = 1;
+    #5 t_i0 = 0; t_i1 = 1; t_s = 0;
+    #5 t_i0 = 0; t_i1 = 1; t_s = 1;
+    #5 t_i0 = 1; t_i1 = 0; t_s = 0;
+    #5 t_i0 = 1; t_i1 = 0; t_s = 1;
+    #5 t_i0 = 1; t_i1 = 1; t_s = 0;
+    #5 t_i0 = 1; t_i1 = 1; t_s = 1;
+
+    #5 $finish;
+  end
+
+  initial
+    $monitor($time, " I0=%b I1=%b S=%b | Y=%b", t_i0, t_i1, t_s, t_y);
 
 endmodule
